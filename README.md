@@ -26,6 +26,11 @@ Website kecil (berjalan secara lokal) untuk menyimpan senarai path folder Window
 - Anda boleh pindahkan folder ini ke mana-mana (cth `C:\Tools\FolderLauncher`) — asalkan keempat-empat fail kekal bersama.
 - Tip: kalau nak auto-mula bila hidupkan PC, tekan `Win+R`, taip `shell:startup`, lalu letak shortcut ke `start.bat` dalam folder itu.
 
+## Eksport & Import
+
+- **📤 Eksport** — muat turun seluruh senarai sebagai fail JSON (backup).
+- **📥 Import** — pilih fail JSON yang pernah dieksport, kemudian pilih **Gabung** (masukkan folder yang tiada sahaja) atau **Ganti semua** (kosongkan senarai sedia ada dahulu). Entri tidak sah ditinggalkan secara automatik.
+
 ## GitHub Pages
 
 Laman penerangan & muat turun projek: https://whwgywgr.github.io/folder-launcher/ (dibina dari folder `docs/`). Ciri "klik untuk buka folder" hanya berfungsi bila dijalankan secara lokal melalui `start.bat` — GitHub Pages tidak boleh menjalankan server Python.

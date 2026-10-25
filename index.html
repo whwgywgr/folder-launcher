@@ -38,8 +38,23 @@
   .btn-primary { background: #4f8cff; color: #fff; }
   .btn-primary:hover { background: #3f7bef; }
 
-  .search-row { margin: 16px 0; }
-  #searchInput { width: 100%; }
+  .toolbar { display: flex; gap: 8px; margin: 16px 0; }
+  #searchInput { flex: 1; min-width: 160px; }
+  .toolbar button { white-space: nowrap; }
+
+  #modalOverlay {
+    position: fixed; inset: 0; background: rgba(5,8,14,.65);
+    display: none; align-items: center; justify-content: center; z-index: 50;
+  }
+  #modalOverlay.show { display: flex; }
+  .modal {
+    background: #171a21; border: 1px solid #2c3342; border-radius: 14px;
+    padding: 22px; max-width: 440px; width: calc(100% - 40px);
+    box-shadow: 0 18px 50px rgba(0,0,0,.5);
+  }
+  .modal h3 { font-size: 17px; margin-bottom: 6px; }
+  .modal p { color: #8b93a5; font-size: 14px; margin-bottom: 16px; }
+  .modal .row2 { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 
   #grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -101,8 +116,11 @@
     </div>
   </div>
 
-  <div class="search-row">
+  <div class="toolbar">
     <input type="text" id="searchInput" placeholder="🔍 Cari folder…" />
+    <button type="button" id="exportBtn">📤 Eksport</button>
+    <button type="button" id="importBtn">📥 Import</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden />
   </div>
 
   <div id="grid"></div>
@@ -112,6 +130,17 @@
   </div>
 </div>
 <div id="toast"></div>
+<div id="modalOverlay">
+  <div class="modal">
+    <h3>📥 Import folder</h3>
+    <p id="importInfo"></p>
+    <div class="row2">
+      <button type="button" id="importCancel">Batal</button>
+      <button type="button" id="importMerge">➕ Gabung</button>
+      <button type="button" class="btn-primary" id="importReplace">♻️ Ganti semua</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const HDR = { "Content-Type": "application/json", "X-App": "folder-launcher" };
@@ -232,6 +261,83 @@ $("pathInput").addEventListener("keydown", (e) => { if (e.key === "Enter") addFo
 $("nameInput").addEventListener("keydown", (e) => { if (e.key === "Enter") addFolder(); });
 $("browseBtn").addEventListener("click", pickFolder);
 $("searchInput").addEventListener("input", render);
+
+let pendingImport = null;
+
+async function exportList() {
+  try {
+    const list = await api("/api/paths");
+    const data = list.map(({ id, name, path }) => ({ id, name, path }));
+    const payload = { app: "folder-launcher", exported: new Date().toISOString(), items: data };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "folder-launcher-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast(data.length + " folder dieksport.");
+  } catch (e) { toast(e.message, true); }
+}
+
+function handleImportFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try { parsed = JSON.parse(reader.result); }
+    catch (e) { toast("Fail bukan JSON yang sah.", true); return; }
+    const items = Array.isArray(parsed) ? parsed : (parsed && parsed.items);
+    if (!Array.isArray(items) || items.length === 0) {
+      toast("Tiada senarai folder dijumpai dalam fail itu.", true);
+      return;
+    }
+    pendingImport = items;
+    $("importInfo").textContent = "Fail mengandungi " + items.length + " entri. Pilih cara import:";
+    $("modalOverlay").classList.add("show");
+  };
+  reader.onerror = () => toast("Gagal membaca fail.", true);
+  reader.readAsText(file);
+}
+
+async function doImport(mode) {
+  if (!pendingImport) return;
+  const items = pendingImport;
+  pendingImport = null;
+  $("modalOverlay").classList.remove("show");
+  try {
+    const r = await api("/api/import", {
+      method: "POST",
+      body: JSON.stringify({ items, mode }),
+    });
+    let msg = r.imported + " folder diimport";
+    if (r.skipped) msg += ", " + r.skipped + " sudah wujud";
+    if (r.invalid) msg += ", " + r.invalid + " tidak sah";
+    toast(msg + ".");
+    refresh();
+  } catch (e) { toast(e.message, true); }
+}
+
+function closeImportModal() {
+  pendingImport = null;
+  $("modalOverlay").classList.remove("show");
+}
+
+$("exportBtn").addEventListener("click", exportList);
+$("importBtn").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", (e) => {
+  if (e.target.files && e.target.files[0]) handleImportFile(e.target.files[0]);
+  e.target.value = "";  // reset supaya fail yang sama boleh dipilih semula
+});
+$("importMerge").addEventListener("click", () => doImport("merge"));
+$("importReplace").addEventListener("click", () => doImport("replace"));
+$("importCancel").addEventListener("click", closeImportModal);
+$("modalOverlay").addEventListener("click", (e) => { if (e.target === $("modalOverlay")) closeImportModal(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && $("modalOverlay").classList.contains("show")) closeImportModal();
+});
+
 refresh();
 </script>
 </body>

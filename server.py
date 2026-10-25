@@ -221,6 +221,9 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/pick":
             return self._pick_dialog()
 
+        if self.path == "/api/import":
+            return self._import(data)
+
         return self._send(404, {"error": "Tiada route"})
 
     def _pick_dialog(self):
@@ -246,6 +249,54 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, {"path": None})
         path = (out.stdout or "").strip()
         return self._send(200, {"path": path or None})
+
+    def _import(self, data):
+        # Terima {"items": [...], "mode": "merge"|"replace"} atau terus senarai [...]
+        if isinstance(data, list):
+            raw_items, mode = data, "merge"
+        elif isinstance(data, dict):
+            raw_items = data.get("items")
+            mode = data.get("mode") or "merge"
+        else:
+            return self._send(400, {"error": "Format import tidak sah"})
+        if not isinstance(raw_items, list):
+            return self._send(400, {"error": "'items' mesti berupa senarai"})
+        if mode not in ("merge", "replace"):
+            mode = "merge"
+
+        new_items = []
+        invalid = 0
+        seen = set()
+        for raw in raw_items:
+            p = ""
+            if isinstance(raw, dict):
+                p = normalize_path(str(raw.get("path") or ""))
+            if not p or not os.path.isabs(p):
+                invalid += 1
+                continue
+            if p.lower() in seen:
+                continue  # pendua dalam fail import itu sendiri
+            seen.add(p.lower())
+            name = str(raw.get("name") or "").strip() if isinstance(raw, dict) else ""
+            name = name or (os.path.basename(p.rstrip("\\")) or p)
+            new_items.append({"id": uuid.uuid4().hex[:8], "name": name, "path": p})
+
+        with _lock:
+            if mode == "replace":
+                items = new_items
+                imported, skipped = len(new_items), 0
+            else:
+                items = load_items()
+                existing = {it["path"].lower() for it in items}
+                added = [it for it in new_items if it["path"].lower() not in existing]
+                skipped = len(new_items) - len(added)
+                imported = len(added)
+                items.extend(added)
+            save_items(items)
+        return self._send(200, {
+            "imported": imported, "skipped": skipped,
+            "invalid": invalid, "total": len(items),
+        })
 
     def do_DELETE(self):
         if not self._guard():
