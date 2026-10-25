@@ -1,0 +1,7 @@
+# Data peribadi anda - jangan muat naik
+paths.json
+paths.json.tmp
+
+# Python
+__pycache__/
+*.pyc

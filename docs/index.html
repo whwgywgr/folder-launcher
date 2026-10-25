@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Folder Launcher — Klik folder, terus terbuka</title>
+<meta name="description" content="Website kecil untuk Windows: simpan senarai path folder kegemaran anda, klik sekala, terus terbuka dalam Windows Explorer. Berjalan 100% secara lokal." />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: #0f1115; color: #e8eaf0; line-height: 1.6;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 48px 20px 64px; }
+  .badge {
+    display: inline-block; background: #1a2c4e; color: #7fb0ff;
+    border: 1px solid #2c4a80; border-radius: 999px;
+    padding: 3px 12px; font-size: 12px; font-weight: 600; letter-spacing: .4px;
+  }
+  h1 { font-size: 40px; line-height: 1.15; margin: 14px 0 10px; }
+  h1 .folder { color: #f8c840; }
+  .subtitle { color: #9aa3b5; font-size: 17px; max-width: 620px; }
+  .cta-row { display: flex; gap: 12px; margin: 26px 0 8px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; border-radius: 10px; padding: 12px 22px;
+    font-size: 15px; font-weight: 600; text-decoration: none; transition: filter .15s;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .btn-primary { background: #4f8cff; color: #fff; }
+  .btn-ghost { background: #232838; color: #e8eaf0; border: 1px solid #2c3342; }
+  .screenshot {
+    width: 100%; border-radius: 14px; border: 1px solid #262b36;
+    margin: 30px 0 10px; display: block;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45);
+  }
+  .caption { color: #6b7385; font-size: 13px; text-align: center; margin-bottom: 44px; }
+  h2 { font-size: 22px; margin: 44px 0 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .feature {
+    background: #171a21; border: 1px solid #262b36; border-radius: 12px; padding: 16px;
+  }
+  .feature .icon { font-size: 22px; }
+  .feature b { display: block; margin: 6px 0 2px; font-size: 14.5px; }
+  .feature p { color: #8b93a5; font-size: 13.5px; }
+  ol.steps { padding-left: 0; list-style: none; counter-reset: step; }
+  ol.steps li {
+    counter-increment: step; position: relative; padding: 14px 16px 14px 58px;
+    background: #171a21; border: 1px solid #262b36; border-radius: 12px; margin-bottom: 10px;
+  }
+  ol.steps li::before {
+    content: counter(step); position: absolute; left: 16px; top: 14px;
+    width: 28px; height: 28px; border-radius: 8px; background: #4f8cff; color: #fff;
+    font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  ol.steps code {
+    background: #0f1115; border: 1px solid #2c3342; border-radius: 6px;
+    padding: 1px 7px; font-family: Consolas, monospace; font-size: 13px; color: #7fb0ff;
+  }
+  .note {
+    background: #241f14; border: 1px solid #57431c; border-radius: 12px;
+    padding: 14px 18px; font-size: 14.5px; color: #d8c79a; margin-top: 22px;
+  }
+  .note b { color: #f0d78f; }
+  .privacy {
+    background: #14231c; border: 1px solid #2b5240; border-radius: 12px;
+    padding: 14px 18px; font-size: 14.5px; color: #9fd8bd; margin-top: 12px;
+  }
+  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid #232838; color: #6b7385; font-size: 14px; }
+  footer a { color: #7fb0ff; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  a { color: #7fb0ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <span class="badge">100% LOKAL · WINDOWS</span>
+  <h1><span class="folder">📁</span> Folder Launcher</h1>
+  <p class="subtitle">Simpan senarai path folder kegemaran anda dalam satu laman, kemudian klik sahaja — folder terus terbuka dalam Windows Explorer dan terus aktif di hadapan.</p>
+
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://github.com/whwgywgr/folder-launcher/archive/refs/heads/main.zip">⬇️ Muat Turun ZIP</a>
+    <a class="btn btn-ghost" href="https://github.com/whwgywgr/folder-launcher">💻 Lihat kod di GitHub</a>
+  </div>
+
+  <img class="screenshot" src="screenshot.png" alt="Tangkapan skrin Folder Launcher" />
+  <p class="caption">Antara muka Folder Launcher — kad folder, carian, dan status folder.</p>
+
+  <h2>Ciri-ciri</h2>
+  <div class="grid">
+    <div class="feature"><div class="icon">🖱️</div><b>Klik sekali, terus buka</b><p>Kad folder dibuka dalam Windows Explorer dan terus menjadi tetingkap aktif di hadapan.</p></div>
+    <div class="feature"><div class="icon">📂</div><b>Pilih folder</b><p>Tampal path manual atau gunakan dialog pilih folder Windows yang sebenar.</p></div>
+    <div class="feature"><div class="icon">🔍</div><b>Carian pantas</b><p>Tapis senarai ikut nama atau path semasa anda mula menaip.</p></div>
+    <div class="feature"><div class="icon">🟢</div><b>Status folder</b><p>Titik hijau = folder wujud; merah = folder tiada (cth. drive luaran ditanggal).</p></div>
+    <div class="feature"><div class="icon">📋</div><b>Salin path</b><p>Salin semula path mana-mana folder dengan satu klik.</p></div>
+    <div class="feature"><div class="icon">💾</div><b>Data dalam PC anda</b><p>Senarai disimpan dalam fail paths.json biasa — mudah dibackup, tiada cloud.</p></div>
+  </div>
+
+  <h2>Cara pasang (3 langkah)</h2>
+  <ol class="steps">
+    <li><b>Muat turun</b> ZIP di atas, kemudian unpack ke mana-mana folder (cth. <code>C:\Tools\FolderLauncher</code>). Perlu <a href="https://www.python.org/downloads/">Python 3</a> terpasang.</li>
+    <li>Double-click fail <code>start.bat</code> — server kecil bermula dan browser terbuka sendiri di <code>http://127.0.0.1:8765</code>.</li>
+    <li>Tambah folder kegemaran anda, kemudian klik mana-mana kad untuk membukanya. Siap!</li>
+  </ol>
+
+  <div class="note">ℹ️ <b>Kenapa perlu jalankan secara lokal?</b> Keselamatan browser tidak membenarkan mana-mana website membuka folder PC anda. Server kecil Python ini (tanpa sebarang dependency) yang mengarahkan Windows membuka folder — hanya diakses dari komputer anda sendiri.</div>
+  <div class="privacy">🔒 <b>Peribadi:</b> Semua data kekal di PC anda. Senarai folder disimpan dalam paths.json dan tidak pernah dihantar ke mana-mana.</div>
+
+  <footer>
+    Dibina dengan Python (stdlib sahaja) + HTML/CSS/JS tanpa framework ·
+    <a href="https://github.com/whwgywgr/folder-launcher">GitHub</a>
+  </footer>
+</div>
+</body>
+</html>
